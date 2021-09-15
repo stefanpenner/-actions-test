@@ -23,17 +23,31 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: volta-cli/action@v1
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - uses: actions/cache@v2
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: yarn-cache
+          restore-keys: |
+            yarn-cache
       - name: yarn --frozen-lockfile
         run: yarn --frozen-lockfile
+
       - name: lint
         run: yarn lint
-      - name: Upload math result for job 1
+
+      - name: upload-built-files
         uses: actions/upload-artifact@v2
         with:
           name: ubuntu-files
           path: "**"
+
       - id: set-matrix
-        run: echo "::set-output name=matrix::$(node ./test-packages/support/suite-setup-util.js --matrix)"
+        run: echo "::set-output name=matrix::$(yarn matrix)"
 
   test:
     needs: ["setup"]
@@ -43,37 +57,13 @@ jobs:
 
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.discover_matrix.outputs.matrix)}}
 
     steps:
       - uses: actions/checkout@v1
       - uses: volta-cli/action@v1
-      - name: Get yarn cache directory path
-        if: runner.os == 'Windows'
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - uses: actions/cache@v2
-        if: runner.os == 'Windows'
-        id: yarn-cache-windows
+      - name: download-built-files
+        uses:  actions/download-artifact@v2
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: yarn-cache-windows
-          restore-keys: |
-            yarn-cache-windows
-
-      - uses: actions/cache@v2
-        id: build-cache
-        if: runner.os != 'Windows'
-        with:
-          path: '**'
-          key: build-${{ hashFiles('**') }}}
-          restore-keys: |
-            build-
-      - name: yarn --frozen-lockfile
-        if: steps.build-cache.outputs.cache-hit != 'true'
-        run: yarn --frozen-lockfile
-
-      - name: suite
-        run: ${{ matrix.command }}
-        working-directory: ${{ matrix.dir }}
+          name: ubuntu-files
+      - name: test
+        run: yarn test

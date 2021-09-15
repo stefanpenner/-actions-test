@@ -5,6 +5,11 @@
   "repository": "git@github.com:stefanpenner/-actions-test",
   "author": "Stefan Penner <stefan.penner@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "lint": "echo hi",
+    "matrix": "echo the-matrix",
+    "test": "yarn test"
+  },
   "dependencies": {
     "typescript": "^4.4.3"
   }
