@@ -6,12 +6,12 @@ on:
 
   push:
     branches:
-      - master
+      - main
       - 'v*' # prior release branches (e.g. `v0.30.x` branch)
     tags:
       - 'v*'
   pull_request:
-    branches: [master]
+    branches: [main]
 
 jobs:
   setup:
@@ -31,7 +31,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ubuntu-files
-          path: **
+          path: "**"
       - id: set-matrix
         run: echo "::set-output name=matrix::$(node ./test-packages/support/suite-setup-util.js --matrix)"
 
