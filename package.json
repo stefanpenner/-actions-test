@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "echo hi",
     "matrix": "echo the-matrix",
-    "test": "yarn test"
+    "test": "echo test"
   },
   "dependencies": {
     "typescript": "^4.4.3"
